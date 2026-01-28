@@ -1,10 +1,8 @@
 streamlit
 pandas
 numpy
-scikit-learn
-xgboost
 plotly
 requests
 pytz
-supabase-py
-python-dotenv
+supabase
+groq
