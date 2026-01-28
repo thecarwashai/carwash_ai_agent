@@ -186,11 +186,19 @@ context = "\n\n".join(m["content"] for m in memory)
 user_msg = st.chat_input("Ask about this site...")
 
 if user_msg:
-    response = client.chat.completions.create(
-        model="mixtral-8x7b-32768",
-        messages=[{
-            "role": "user",
-            "content": f"Context:\n{context}\n\nQuestion:\n{user_msg}"
-        }]
-    )
-    st.chat_message("assistant").write(response.choices[0].message.content)
+    try:
+        response = client.chat.completions.create(
+            model="llama3-8b-8192",
+            messages=[
+                {"role": "system", "content": "You are an AI operations manager for a car wash."},
+                {"role": "user", "content": f"Context:\n{context}\n\nQuestion:\n{user_msg}"}
+            ],
+            temperature=0.3,
+            max_tokens=512,
+        )
+
+        reply = response.choices[0].message.content
+
+    except Exception as e:
+        reply = "⚠️ AI service temporarily unavailable. Please try again."
+
