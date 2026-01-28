@@ -177,28 +177,57 @@ if st.button("Save Summary to AI Memory"):
 # ----------------------------
 # AI CHAT
 # ----------------------------
+# ----------------------------
+# AI CHAT
+# ----------------------------
 st.subheader("🤖 Carwash AI Chat")
 
 client = Groq(api_key=st.secrets["GROQ_API_KEY"])
-memory = load_recent_memory(selected_site)
 
-context = "\n\n".join(m["content"] for m in memory)
-user_msg = st.chat_input("Ask about this site...")
+# Load recent memory for context
+memory = load_recent_memory(selected_site)
+context = "\n\n".join(
+    f"[{m['summary_type']} | {m['date']}]\n{m['content']}"
+    for m in memory
+)
+
+# Chat input
+user_msg = st.chat_input(f"Ask anything about site {selected_site}...")
 
 if user_msg:
-    try:
-        response = client.chat.completions.create(
-            model="llama3-8b-8192",
-            messages=[
-                {"role": "system", "content": "You are an AI operations manager for a car wash."},
-                {"role": "user", "content": f"Context:\n{context}\n\nQuestion:\n{user_msg}"}
-            ],
-            temperature=0.3,
-            max_tokens=512,
-        )
+    # Show user message
+    with st.chat_message("user"):
+        st.write(user_msg)
 
-        reply = response.choices[0].message.content
+    # Call Groq
+    with st.spinner("Thinking..."):
+        try:
+            response = client.chat.completions.create(
+                model="llama3-8b-8192",
+                messages=[
+                    {
+                        "role": "system",
+                        "content": (
+                            "You are an AI operations manager for a car wash. "
+                            "Be concise, practical, and data-driven."
+                        ),
+                    },
+                    {
+                        "role": "user",
+                        "content": f"Context:\n{context}\n\nQuestion:\n{user_msg}",
+                    },
+                ],
+                temperature=0.3,
+                max_tokens=512,
+            )
 
-    except Exception as e:
-        reply = "⚠️ AI service temporarily unavailable. Please try again."
+            reply = response.choices[0].message.content
+
+        except Exception as e:
+            reply = "⚠️ AI service temporarily unavailable. Please try again."
+
+    # Show assistant reply (THIS WAS MISSING)
+    with st.chat_message("assistant"):
+        st.write(reply)
+
 
