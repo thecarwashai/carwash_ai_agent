@@ -1,6 +1,7 @@
 # supabase_client.py
 
 import os
+import pandas as pd
 from supabase import create_client
 
 from config import SUPABASE_URL, SUPABASE_KEY
